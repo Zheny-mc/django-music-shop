@@ -1,0 +1,11 @@
+{% extends 'main/layout.html' %}
+
+{% block title %}
+Main Page
+{% endblock %}
+
+{% block content %}
+    {% include 'main/test.html' %}
+    <h1>Main Page</h1>
+    <p>{{ request.user }}</p>
+{% endblock %}
