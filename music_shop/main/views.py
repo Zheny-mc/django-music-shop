@@ -3,6 +3,7 @@ from django import views
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 
+from .mixins import CartMixin
 from .models import Customer, Artist, Album
 from .forms import LoginForm, RegistrationForm
 
@@ -85,8 +86,15 @@ class RegistrationView(views.View):
         }
         return render(request, 'main/registration.html', context)
 
+class AccountView(CartMixin, views.View):
 
-
+    def get(self, request, *args, **kwargs):
+        customer = Customer.objects.get(user=request.user)
+        context = {
+            'customer': customer,
+            'cart': self.cart
+        }
+        return render(request, 'main/accounts.html', context)
 
 
 
