@@ -1,11 +1,14 @@
+from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render
 from django import views
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 
 from .mixins import CartMixin
-from .models import Customer, Artist, Album
+from .models import Customer, Artist, Album, CartProduct, Cart
 from .forms import LoginForm, RegistrationForm
+from utils import recalc_cart
 
 
 class BaseView(views.View):
@@ -97,7 +100,51 @@ class AccountView(CartMixin, views.View):
         return render(request, 'main/accounts.html', context)
 
 
+class AddToCartView(CartMixin, views.View):
+    def get(self, request, *args, **kwargs):
+        ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
+        content_type = ContentType.objects.get(model=ct_model)
+        product = content_type.model_class().objects.get(slug=product_slug)
+        cart_product, created = CartProduct.objects.get_or_create(
+            user=self.cart.owner, cart=self.cart, content_type=content_type, object_id=product.id
+        )
+        if created:
+            self.cart.products.add(cart_product)
+        recalc_cart(self.cart)
+        messages.add_message(request, messages.INFO, "Товар успешно добавлен")
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+class DeleteFromCartView(CartMixin, views.View):
+
+    def get(self, request, *args, **kwargs):
+        ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
+        content_type = ContentType.objects.get(model=ct_model)
+        product = content_type.model_class().objects.get(slug=product_slug)
+        cart_product, created = CartProduct.objects.get(
+            user=self.cart.owner, cart=self.cart, content_type=content_type, object_id=product.id
+        )
+        self.cart.products.remove(cart_product)
+        cart_product.delete()
+        recalc_cart(self.cart)
+        messages.add_message(request, messages.INFO, "Товар успешно удален")
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+class ChangeQTYView(CartMixin, views.View):
+
+    def post(self, request, *args, **kwargs):
+        ct_model, product_slug = kwargs.get('ct_model'), kwargs.get('slug')
+        content_type = ContentType.objects.get(model=ct_model)
+        product = content_type.model_class().objects.get(slug=product_slug)
+        cart_product, created = CartProduct.objects.get(
+            user=self.cart.owner, cart=self.cart, content_type=content_type, object_id=product.id
+        )
+        qty = int(request.POST.get('qty'))
+        cart_product.qty = qty
+        cart_product.save()
+        recalc_cart(self.cart)
+        messages.add_message(request, messages.INFO, "Кол-во успешно изменено")
+        return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 
