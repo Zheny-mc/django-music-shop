@@ -10,10 +10,10 @@
 </head>
 <body>
     <div class="container">
-        <header class="p-3 mb-3 border-bottom">
+        <nav class="p-3 mb-3 border-bottom">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <a href="{% url 'base' %}" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                  <img src="{% static 'main/img/logo.png' %}" width="80px" alt="logo">
+                  <img src="{% static 'main/img/logo.png' %}" width="50px" alt="logo">
                 </a>
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
@@ -21,53 +21,49 @@
                     <li><a href="{% url 'about' %}" class="nav-link px-2 link-body-emphasis">О нас</a></li>
                 </ul>
 
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-                    <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+                <div class="me-lg-4">
+                    {% if not request.user.is_authenticated %}
+                    <div class="dropdown text-end">
+                        <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{% static 'main/img/aninim.png' %}" alt="mdo" width="32" height="32" class="rounded-circle">
+                        </a>
+                        <ul class="dropdown-menu text-small" style="">
+                            <li><a class="dropdown-item" href="{% url 'login' %}">Войти</a></li>
+                            <li><a class="dropdown-item" href="{% url 'registration' %}">Зарегистрироваться</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="dropdown text-end">
+                        <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                        </a>
+                        <ul class="dropdown-menu text-small" style="">
+                            <li><a class="dropdown-item" href="{% url 'account' %}">Профиль</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Выйти</a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+
+                <form action="{% url 'cart' %}" class="d-flex">
+                    <button class="btn btn-outline-dark" type="submit">
+                        <i class="bi-cart-fill me-1"></i>
+                        Cart
+                        <span class="badge bg-dark text-white ms-1 rounded-pill">{{ cart.products.count }}</span>
+                    </button>
                 </form>
 
-
-                {% if not request.user.is_authenticated %}
-                <div class="dropdown text-end">
-                    <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="{% static 'main/img/aninim.png' %}" alt="mdo" width="32" height="32" class="rounded-circle">
-                    </a>
-                    <ul class="dropdown-menu text-small" style="">
-                        <li><a class="dropdown-item" href="{% url 'login' %}">Войти</a></li>
-                        <li><a class="dropdown-item" href="{% url 'registration' %}">Зарегистрироваться</a></li>
-                    </ul>
-                </div>
-                {% else %}
-                <div class="dropdown text-end">
-                    <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
-                    </a>
-                    <ul class="dropdown-menu text-small" style="">
-                        <li><a class="dropdown-item" href="{% url 'account' %}">Профиль</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}">Выйти</a></li>
-                    </ul>
-                </div>
-                {% endif %}
-
-
             </div>
-        </header>
+        </nav>
 
         <main>
-            {% block content %}
-
-            {% endblock %}
+            {% block content %}{% endblock %}
         </main>
 
-        <footer class="py-3 my-4">
-            <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-                <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
-                <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
-                <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
-                <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
-                <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
-            </ul>
-            <p class="text-center text-body-secondary">© 2023 Company, Inc</p>
+        <footer class="py-5 bg-dark">
+            <div class="container"><p class="m-0 text-center text-white">Copyright © Your Website 2023</p></div>
         </footer>
     </div>
 

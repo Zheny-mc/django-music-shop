@@ -11,9 +11,19 @@ from .forms import LoginForm, RegistrationForm
 from utils import recalc_cart
 
 
-class BaseView(views.View):
+class BaseView(CartMixin, views.View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'main/index.html', {})
+        albums = Album.objects.all().order_by('-id')[:5]
+        context = {
+            'album': albums,
+            'cart': self.cart
+        }
+        return render(request, 'main/index.html', context)
+
+class CartView(CartMixin, views.View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'main/cart.html', {"cart": self.cart})
+
 
 class AboutView(views.View):
 
