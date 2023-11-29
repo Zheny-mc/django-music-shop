@@ -13,9 +13,9 @@ from utils import recalc_cart
 
 class BaseView(CartMixin, views.View):
     def get(self, request, *args, **kwargs):
-        albums = Album.objects.all().order_by('-id')[:5]
+        albums = Album.objects.all().order_by('-id')
         context = {
-            'album': albums,
+            'albums': albums,
             'cart': self.cart
         }
         return render(request, 'main/index.html', context)
@@ -124,6 +124,7 @@ class AddToCartView(CartMixin, views.View):
         messages.add_message(request, messages.INFO, "Товар успешно добавлен")
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+
 class DeleteFromCartView(CartMixin, views.View):
 
     def get(self, request, *args, **kwargs):
@@ -157,8 +158,14 @@ class ChangeQTYView(CartMixin, views.View):
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
+class AddToWishlistView(views.View):
 
-
+    @staticmethod
+    def get(request, *args, **kwargs):
+        album = Album.objects.get(id=kwargs['album_id'])
+        customer = Customer.objects.get(user=request.user)
+        customer.wishlist.add(album)
+        return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 

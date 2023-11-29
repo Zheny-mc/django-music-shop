@@ -11,7 +11,8 @@ from .views import (
     CartView,
     AddToCartView,
     DeleteFromCartView,
-    ChangeQTYView
+    ChangeQTYView,
+    AddToWishlistView
 )
 
 urlpatterns = [
@@ -21,11 +22,14 @@ urlpatterns = [
     path('registration/', RegistrationView.as_view(), name='registration'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
     path('account/', AccountView.as_view(), name='account'),
-    # path('<str:artist_slug>/', ArtistDetailView.as_view(), name='artist_detail'),
-    # path('<str:artist_slug>/<str:album_slug>/', AlbumDetailView.as_view(), name='album_detail'),
+    # лист ожидания
+    path('add-to-wishlist/<int:album_id>', AddToWishlistView.as_view(), name='add_to_wishlist'),
     # для корзины
     path('cart/', CartView.as_view(), name='cart'),
     path('add-to-cart/<str:ct_model>/<str:slug>/', AddToCartView.as_view(), name='add_to_cart'),
     path('remove-from-cart/<str:ct_model>/<str:slug>/', DeleteFromCartView.as_view(), name='delete_from_cart'),
-    path('change-qty/<str:ct_model>/<str:slug>/', ChangeQTYView.as_view(), name='change_qty')
+    path('change-qty/<str:ct_model>/<str:slug>/', ChangeQTYView.as_view(), name='change_qty'),
+    # получение модели
+    path('<str:artist_slug>/', ArtistDetailView.as_view(), name='artist_detail'),
+    path('<str:artist_slug>/<str:album_slug>/', AlbumDetailView.as_view(), name='album_detail'),
 ]

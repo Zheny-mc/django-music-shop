@@ -198,6 +198,9 @@ class Cart(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def products_in_cart(self):
+        return [c.content_object for c in self.products.all()]
+
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
