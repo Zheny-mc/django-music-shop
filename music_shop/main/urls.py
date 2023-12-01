@@ -12,7 +12,8 @@ from .views import (
     AddToCartView,
     DeleteFromCartView,
     ChangeQTYView,
-    AddToWishlistView
+    AddToWishlistView,
+    ClearNotificationsViews
 )
 
 urlpatterns = [
@@ -29,6 +30,7 @@ urlpatterns = [
     path('add-to-cart/<str:ct_model>/<str:slug>/', AddToCartView.as_view(), name='add_to_cart'),
     path('remove-from-cart/<str:ct_model>/<str:slug>/', DeleteFromCartView.as_view(), name='delete_from_cart'),
     path('change-qty/<str:ct_model>/<str:slug>/', ChangeQTYView.as_view(), name='change_qty'),
+    path('clear-notifications/', ClearNotificationsViews.as_view(), name='clear-notifications'),
     # получение модели
     path('<str:artist_slug>/', ArtistDetailView.as_view(), name='artist_detail'),
     path('<str:artist_slug>/<str:album_slug>/', AlbumDetailView.as_view(), name='album_detail'),

@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from django.urls import reverse
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 
 from utils import upload_function
 
@@ -67,7 +67,6 @@ class Artist(models.Model):
     slug = models.SlugField()
     image = models.ImageField(upload_to=upload_function, null=True, blank=True)
 
-
     def __str__(self):
         return f'{self.name} | {self.genre.name}'
 
@@ -90,6 +89,7 @@ class Album(models.Model):
     slug = models.SlugField()
     description = models.TextField(verbose_name='Описание', default='Описание появится позже')
     stock = models.IntegerField(default=1, verbose_name='Наличие на складе')
+    out_of_stock = models.BooleanField(default=False, verbose_name='Нет в наличии')
     price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Цена')
     offer_of_the_week = models.BooleanField(default=False, verbose_name='Предложение недели?')
     image = models.ImageField(upload_to=upload_function)
@@ -128,6 +128,7 @@ class Customer(models.Model):
         verbose_name = 'Покупатель'
         verbose_name_plural = 'Покупатели'
 
+
 class NotificationManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset()
@@ -137,6 +138,11 @@ class NotificationManager(models.Manager):
             recipient=recipient,
             read=False
         )
+
+    def make_all_read(self, recipient):
+        qs = self.get_queryset().filter(recipient=recipient, read=False)
+        qs.update(read=True)
+
 
 class Notification(models.Model):
     """Уведомления"""
@@ -152,6 +158,7 @@ class Notification(models.Model):
     class Meta:
         verbose_name = 'Уведомление'
         verbose_name_plural = 'Уведомления'
+
 
 class CartProduct(models.Model):
     """ Продукт корзины """
@@ -173,7 +180,8 @@ class CartProduct(models.Model):
 
     @property
     def display_name(self):
-        model_fields = self.MODEL_CARTPRODUCT_DISPLAY_NAME_MAP.get(self.content_object.__class__._meta.model_name.capitalize())
+        model_fields = self.MODEL_CARTPRODUCT_DISPLAY_NAME_MAP.get(
+            self.content_object.__class__._meta.model_name.capitalize())
         if model_fields and model_fields['is_constructable']:
             display_name = model_fields['separator'].join(
                 [operator.attrgetter(field)(self.content_object) for field in model_fields['fields']]
@@ -260,6 +268,7 @@ class Order(models.Model):
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
 
+
 class ImageGallery(models.Model):
     """Галерея изображений"""
 
@@ -280,81 +289,28 @@ class ImageGallery(models.Model):
         verbose_name_plural = 'Галереи изображений'
 
 
+def check_previous_qty(instance, **kwargs):
+    try:
+        album = Album.objects.get(id=instance.id)
+    except Album.DoesNotExist:
+        return None
+    instance.out_of_stock = True if not album.stock else False
+
+
 def send_notification(instance, **kwargs):
-    if instance.stock:
+    if instance.stock and instance.out_of_stock:
+        print('fire notifications')
         customers = Customer.objects.filter(
-            wishlist=[instance]
+            wishlist__in=[instance]
         )
         if customers.count():
             for c in customers:
                 Notification.objects.create(
                     recipient=c,
                     text=mark_safe(
-                        f'''Позиция <a href="{instance.get_absolute_url()}">{instance.display_name}</a>
-                        , которую Вы оживаете, есть в наличии.''')
+                        f'Позиция <a href="{instance.get_absolute_url()}">{instance.name}</a> есть в наличии.')
                 )
                 c.wishlist.remove(instance)
 
 post_save.connect(send_notification, sender=Album)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+pre_save.connect(check_previous_qty, sender=Album)
