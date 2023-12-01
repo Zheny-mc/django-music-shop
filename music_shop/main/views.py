@@ -5,13 +5,13 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 
-from .mixins import CartMixin
+from .mixins import CartMixin, NotificationMixin
 from .models import Customer, Artist, Album, CartProduct, Cart
 from .forms import LoginForm, RegistrationForm
 from utils import recalc_cart
 
 
-class BaseView(CartMixin, views.View):
+class BaseView(CartMixin, NotificationMixin, views.View):
     def get(self, request, *args, **kwargs):
         albums = Album.objects.all().order_by('-id')
         context = {

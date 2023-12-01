@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from django.urls import reverse
+from django.db.models.signals import post_save
 
 from utils import upload_function
 
@@ -127,12 +128,23 @@ class Customer(models.Model):
         verbose_name = 'Покупатель'
         verbose_name_plural = 'Покупатели'
 
+class NotificationManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+    def all(self, recipient):
+        return self.get_queryset().filter(
+            recipient=recipient,
+            read=False
+        )
+
 class Notification(models.Model):
     """Уведомления"""
 
     recipient = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name='Получатель')
     text = models.TextField()
     read = models.BooleanField(default=False)
+    objects = NotificationManager()
 
     def __str__(self):
         return f'Уведомление для {self.recipient.user.username} | id={self.id}'
@@ -268,9 +280,22 @@ class ImageGallery(models.Model):
         verbose_name_plural = 'Галереи изображений'
 
 
+def send_notification(instance, **kwargs):
+    if instance.stock:
+        customers = Customer.objects.filter(
+            wishlist=[instance]
+        )
+        if customers.count():
+            for c in customers:
+                Notification.objects.create(
+                    recipient=c,
+                    text=mark_safe(
+                        f'''Позиция <a href="{instance.get_absolute_url()}">{instance.display_name}</a>
+                        , которую Вы оживаете, есть в наличии.''')
+                )
+                c.wishlist.remove(instance)
 
-
-
+post_save.connect(send_notification, sender=Album)
 
 
 
