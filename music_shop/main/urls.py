@@ -13,7 +13,8 @@ from .views import (
     DeleteFromCartView,
     ChangeQTYView,
     AddToWishlistView,
-    ClearNotificationsViews
+    ClearNotificationsViews,
+    RemoveFromWishListView
 )
 
 urlpatterns = [
@@ -25,6 +26,7 @@ urlpatterns = [
     path('account/', AccountView.as_view(), name='account'),
     # лист ожидания
     path('add-to-wishlist/<int:album_id>', AddToWishlistView.as_view(), name='add_to_wishlist'),
+    path('remove-from-wishlist/<int:album_id>', RemoveFromWishListView.as_view(), name='remove_from_wishlist'),
     # для корзины
     path('cart/', CartView.as_view(), name='cart'),
     path('add-to-cart/<str:ct_model>/<str:slug>/', AddToCartView.as_view(), name='add_to_cart'),
