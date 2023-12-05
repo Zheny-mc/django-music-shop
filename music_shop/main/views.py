@@ -21,9 +21,14 @@ class BaseView(CartMixin, NotificationMixin, views.View):
         }
         return render(request, 'main/index.html', context)
 
-class CartView(CartMixin, views.View):
+
+class CartView(CartMixin, NotificationMixin, views.View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'main/cart.html', {"cart": self.cart})
+        context = {
+            "cart": self.cart,
+            "notifications": self.notifications(request.user)
+        }
+        return render(request, 'main/cart.html', context)
 
 
 class AboutView(views.View):
@@ -38,11 +43,13 @@ class ArtistDetailView(views.generic.DetailView):
     slug_url_kwarg = 'artist_slug'
     context_object_name = 'artist'
 
-class AlbumDetailView(CartMixin, views.generic.DetailView):
+
+class AlbumDetailView(CartMixin, NotificationMixin, views.generic.DetailView):
     model = Album
     template_name = 'main/album/album_detail.html'
     slug_url_kwarg = 'album_slug'
     context_object_name = 'album'
+
 
 class LoginView(views.View):
 
@@ -100,11 +107,13 @@ class RegistrationView(views.View):
         }
         return render(request, 'main/registration.html', context)
 
-class AccountView(CartMixin, views.View):
+
+class AccountView(CartMixin, NotificationMixin, views.View):
 
     def get(self, request, *args, **kwargs):
         customer = Customer.objects.get(user=request.user)
         context = {
+            'notifications': self.notifications(request.user),
             'customer': customer,
             'cart': self.cart
         }

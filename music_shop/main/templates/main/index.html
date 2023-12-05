@@ -70,7 +70,7 @@ Main Page
                                         {% if album not in request.user.customer.wishlist.all %}
                                             <a href="{% url 'add_to_wishlist' album_id=album.id %}" class="btn btn-warning">Добавить в ожидаемое</a>
                                         {% else %}
-                                            <a href="#" class="btn btn-secondary">Перейти ожидаемое</a>
+                                            <a href="{% url 'account' %}" class="btn btn-secondary">Перейти ожидаемое</a>
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}
