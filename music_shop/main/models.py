@@ -3,7 +3,7 @@ import operator
 from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
@@ -64,6 +64,7 @@ class Artist(models.Model):
     name = models.CharField(max_length=255, verbose_name="Исполнитель / Группа")
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     members = models.ManyToManyField(Member, verbose_name='Участник', related_name='artist')
+    image_gallery = GenericRelation('imagegallery')
     slug = models.SlugField()
     image = models.ImageField(upload_to=upload_function, null=True, blank=True)
 

@@ -38,7 +38,7 @@ class ArtistDetailView(views.generic.DetailView):
     slug_url_kwarg = 'artist_slug'
     context_object_name = 'artist'
 
-class AlbumDetailView(views.generic.DetailView):
+class AlbumDetailView(CartMixin, views.generic.DetailView):
     model = Album
     template_name = 'main/album/album_detail.html'
     slug_url_kwarg = 'album_slug'
