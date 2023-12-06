@@ -14,7 +14,8 @@ from .views import (
     ChangeQTYView,
     AddToWishlistView,
     ClearNotificationsViews,
-    RemoveFromWishListView
+    RemoveFromWishListView,
+    CheckoutView
 )
 
 urlpatterns = [
@@ -24,6 +25,7 @@ urlpatterns = [
     path('registration/', RegistrationView.as_view(), name='registration'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
     path('account/', AccountView.as_view(), name='account'),
+    path('checkout/', CheckoutView.as_view(), name='checkout'),
     # лист ожидания
     path('add-to-wishlist/<int:album_id>', AddToWishlistView.as_view(), name='add_to_wishlist'),
     path('remove-from-wishlist/<int:album_id>', RemoveFromWishListView.as_view(), name='remove_from_wishlist'),

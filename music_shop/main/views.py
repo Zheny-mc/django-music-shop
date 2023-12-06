@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login
 
 from .mixins import CartMixin, NotificationMixin
 from .models import Customer, Artist, Album, CartProduct, Cart, Notification
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, OrderForm
 from utils import recalc_cart
 
 
@@ -194,8 +194,16 @@ class RemoveFromWishListView(views.View):
         customer.wishlist.remove(album)
         return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+class CheckoutView(CartMixin, NotificationMixin, views.View):
 
-
+    def get(self, request, *args, **kwargs):
+        form = OrderForm(request.POST or None)
+        context = {
+            'cart': self.cart,
+            'form': form,
+            'notifications': self.notifications(request.user)
+        }
+        return render(request, 'main/checkout.html', context)
 
 
 
