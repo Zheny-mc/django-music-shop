@@ -59,7 +59,7 @@ class Genre(models.Model):
 
 
 class Artist(models.Model):
-    """Исполнитель"""
+    """Исполнитель  / Группа"""
 
     name = models.CharField(max_length=255, verbose_name="Исполнитель / Группа")
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
