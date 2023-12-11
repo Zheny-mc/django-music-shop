@@ -16,14 +16,39 @@ Main Page
         {% endfor %}
     {% endif %}
 
-    <header class="bg-dark py-5">
-            <div class="container px-4 px-lg-5 my-5">
-                <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Shop in style</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">With this shop hompeage template</p>
+    <header class="bg-dark py-5 mb-3">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">Shop in style</h1>
+                <p class="lead fw-normal text-white-50 mb-0">With this shop hompeage template</p>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <h3>Хит продаж текущего месяца:</h3>
+        <div class="col mb-5" style="width: 19rem">
+            <div class="card h-100">
+                <!-- Product image-->
+                <img class="card-img-top" src="{{ month_bestseller.image.url }}" alt="...">
+                <!-- Product details-->
+                <div class="card-body">
+                    <div class="text-center">
+                        <!-- Product name-->
+                        <h5 class="fw-bolder"><a class="text-decoration-none" href="{{ month_bestseller.get_absolute_url }}">
+                            {{ month_bestseller.name }}
+                        </a></h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            Купили:
+                            <strong class="badge bg-success">{{ month_bestseller_qty }} шт.</strong>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </header>
+        </div>
+    </section>
 
     <section>
         <h3>Найти товары:</h3>
@@ -33,7 +58,7 @@ Main Page
     </section>
 
     <section class="py-5">
-        <div class="container px-4 px-lg-5 mt-5">
+        <div class="container px-4 px-lg-5 mt-3">
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
                 {% for album in albums %}
                 <div class="col mb-5" style="width: 19rem">

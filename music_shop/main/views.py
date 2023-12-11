@@ -15,11 +15,14 @@ from utils import recalc_cart
 class BaseView(CartMixin, NotificationMixin, views.View):
     def get(self, request, *args, **kwargs):
         albums = Album.objects.all().order_by('-id')
+        month_bestseller, month_bestseller_qty = Album.objects.get_month_bestseller()
         context = {
             'notifications': self.notifications(request.user),
             'albums': albums,
             'cart': self.cart
         }
+        if month_bestseller:
+            context.update({'month_bestseller': month_bestseller, 'month_bestseller_qty': month_bestseller_qty})
         return render(request, 'main/index.html', context)
 
 
