@@ -1,7 +1,14 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db import connection
 
-from .models import Order
+from crispy_forms.bootstrap import InlineCheckboxes
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout
+
+from ajax_select.fields import AutoCompleteSelectField
+
+from .models import Order, Genre, MediaType
 
 User = get_user_model()
 
@@ -89,9 +96,52 @@ class RegistrationForm(forms.ModelForm):
         fields = ['username', 'password', 'confirm_password', 'first_name', 'last_name', 'address', 'phone', 'email']
 
 
+class SearchForm(forms.Form):
 
+    GENRE_CHOICES = (
+        (g['slug'], g['name']) for g in Genre.objects.all().values('slug', 'name')
+    ) if connection.introspection.table_names() else []
 
+    MEDIA_TYPE_CHOICES = (
+        (m['id'], m['name']) for m in MediaType.objects.all().values('id', 'name')
+    ) if connection.introspection.table_names() else []
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['genre'].label = 'Жанр'
+        self.fields['artist'].label = 'Артист'
+        self.fields['media_type'].label = 'Меданоситель'
+        self.fields['release_date_from'].label = 'Дата релиза (с)'
+        self.fields['release_date_to'].label = 'Дата релиза (до)'
+
+        self.helper = FormHelper()
+        self.helper.form_class = "form-check form-check-inline"
+        self.helper.layout = Layout(InlineCheckboxes(['genre', 'media_type']))
+
+    artist = AutoCompleteSelectField('artist', required=False,
+                                     help_text='')
+
+    genre = forms.MultipleChoiceField(choices=GENRE_CHOICES,
+                                      widget=forms.CheckboxSelectMultiple,
+                                      required=False)
+
+    media_type = forms.MultipleChoiceField(choices=MEDIA_TYPE_CHOICES,
+                                           widget=forms.CheckboxSelectMultiple,
+                                           required=False)
+
+    release_date_from = forms.DateField(
+        widget=forms.TextInput(
+            attrs={'type': 'date'}
+        ),
+        required=False
+    )
+
+    release_date_to = forms.DateField(
+        widget=forms.TextInput(
+            attrs={'type': 'date'}
+        ),
+        required=False
+    )
 
 
 

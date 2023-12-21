@@ -1,66 +1,31 @@
 {% extends 'main/layout.html' %}
+{% load crispy_forms_tags %}
 
-{% block title %}
-Main Page
-{% endblock %}
+{% block title %}Поиск:{% endblock %}
 
 {% block content %}
-{#    <p>{{ request.user }}</p>#}
+    <div class="col-md-12 mt-5">
+        <h5 class="text-center">Поиск</h5>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success fade show" role="alert">
-                <strong>{{ message }}</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <header class="bg-light py-5 mb-3">
-        <div class="container px-4 px-lg-5 my-5">
-            <div class="text-center">
-                <h1 class="display-4 fw-bolder">Добро пожаловать, в магазин раритетной музыки</h1>
-                <p class="lead fw-normal mb-0">Здесь вы сможете купить винловые платинки, компакт диски с оригинальной музыкой</p>
-            </div>
+        <div class="col-md-12">
+            <form action="{% url 'search' %}" method="GET">
+                {{ form.media }}
+                {{ form|crispy }}
+                <input type="submit" value="Поиск" class="btn btn-success">
+            </form>
         </div>
-    </header>
 
-    <section>
-        <h3>Хит продаж текущего месяца:</h3>
-        <div class="col mb-5" style="width: 19rem">
-            <div class="card h-100">
-                <!-- Product image-->
-                <img class="card-img-top" src="{{ month_bestseller.image.url }}" alt="...">
-                <!-- Product details-->
-                <div class="card-body">
-                    <div class="text-center">
-                        <!-- Product name-->
-                        <h5 class="fw-bolder"><a class="text-decoration-none" href="{{ month_bestseller.get_absolute_url }}">
-                            {{ month_bestseller.name }}
-                        </a></h5>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            Купили:
-                            <strong class="badge bg-success">{{ month_bestseller_qty }} шт.</strong>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-{#    <section>#}
-{#        <h3>Найти товары:</h3>#}
-{#        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">#}
-{#            <input type="search" class="form-control" placeholder="Search..." aria-label="Search">#}
-{#        </form>#}
-{#    </section>#}
-
-    <section class="py-5">
+        <h5 class="text-center">
+            Результаты поиска:
+            {% if results.count %}
+                {{ results.count }}
+            {% else %}
+                Нет результатов
+            {% endif %}
+        </h5>
         <div class="container px-4 px-lg-5 mt-3">
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-                {% for album in albums %}
+                {% for album in results %}
                 <div class="col mb-5" style="width: 19rem">
                     <div class="card h-100">
                         <!-- Product image-->
@@ -112,8 +77,8 @@ Main Page
                         </div>
                     </div>
                 </div>
-                {% endfor %}
+            {% endfor %}
             </div>
         </div>
-    </section>
+    </div>
 {% endblock %}

@@ -5,10 +5,11 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from django.db import transaction
+from django.db.models import Q
 
 from .mixins import CartMixin, NotificationMixin
 from .models import Customer, Artist, Album, CartProduct, Cart, Notification
-from .forms import LoginForm, RegistrationForm, OrderForm
+from .forms import LoginForm, RegistrationForm, OrderForm, SearchForm
 from utils import recalc_cart
 
 
@@ -273,6 +274,48 @@ class MakeOrderView(CartMixin, views.View):
             messages.add_message(request, messages.INFO, 'Заказ успешно оформлен. Спасибо за заказ!')
             return HttpResponseRedirect('/')
         return HttpResponseRedirect('/cart/')
+
+
+class SearchView(CartMixin, NotificationMixin, views.View):
+
+    def get(self, request, *args, **kwargs):
+        form = SearchForm(request.GET)
+        results = None
+        if form.is_valid():
+            q = Q()
+            artist = form.cleaned_data['artist']
+            if artist:
+                q.add(Q(**{'artist': artist}), Q.AND)
+
+            genre = form.cleaned_data['genre']
+            if genre:
+                if len(genre) == 1:
+                    q.add(Q(**{'artist__genre__slug': genre[0]}), Q.AND)
+                else:
+                    q.add(Q(**{'artist__genre__slug__in': genre}), Q.AND)
+
+            media_type = form.cleaned_data['media_type']
+            if media_type:
+                q.add(Q(**{'media_type__id__in': media_type}), Q.AND)
+
+            release_date_from = form.cleaned_data['release_date_from']
+            if release_date_from:
+                q.add(Q(**{'release_date__gte': release_date_from}), Q.AND)
+
+            release_date_to = form.cleaned_data['release_date_to']
+            if release_date_to:
+                q.add(Q(**{'release_date__lte': release_date_to}), Q.AND)
+
+        if q:
+            results = Album.objects.filter(q)
+        else:
+            results = Album.objects.none()
+
+        context = {'form': form, 'cart': self.cart,
+                   'notifications': self.notifications(request.user)}
+        if results and results.exists():
+            context.update({'results': results})
+        return render(request, 'main/search.html', context)
 
 
 
