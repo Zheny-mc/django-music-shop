@@ -2,15 +2,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render
 from django import views
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.db.models import Q
 
 from .mixins import CartMixin, NotificationMixin
-from .models import Customer, Artist, Album, CartProduct, Cart, Notification
+from .models import Customer, Artist, Album, CartProduct, Cart, Notification, Order
 from .forms import LoginForm, RegistrationForm, OrderForm, SearchForm
 from utils import recalc_cart
+from .services import get_order_by_id
 
 
 class BaseView(CartMixin, NotificationMixin, views.View):
@@ -137,7 +138,7 @@ class AddToCartView(CartMixin, views.View):
             self.cart.products.add(cart_product)
         recalc_cart(self.cart)
         messages.add_message(request, messages.INFO, "Товар успешно добавлен")
-        return HttpResponseRedirect(request.META['HTTP_REFERER'])
+        return HttpResponseRedirect('/')
 
 
 class DeleteFromCartView(CartMixin, views.View):
@@ -153,7 +154,7 @@ class DeleteFromCartView(CartMixin, views.View):
         cart_product.delete()
         recalc_cart(self.cart)
         messages.add_message(request, messages.INFO, "Товар успешно удален")
-        return HttpResponseRedirect(request.META['HTTP_REFERER'])
+        return HttpResponseRedirect('/cart/')
 
 
 class ChangeQTYView(CartMixin, views.View):
@@ -170,7 +171,7 @@ class ChangeQTYView(CartMixin, views.View):
         cart_product.save()
         recalc_cart(self.cart)
         messages.add_message(request, messages.INFO, "Кол-во успешно изменено")
-        return HttpResponseRedirect(request.META['HTTP_REFERER'])
+        return HttpResponseRedirect('/cart/')
 
 
 class AddToWishlistView(views.View):
@@ -210,6 +211,11 @@ class CheckoutView(CartMixin, NotificationMixin, views.View):
         }
         return render(request, 'main/checkout.html', context)
 
+class OrderView(views.View):
+
+    def get(self, request, *args, **kwargs):
+        order: Order = get_order_by_id(request.user, kwargs['id'])
+        return JsonResponse(order)
 
 class MakeOrderView(CartMixin, views.View):
 

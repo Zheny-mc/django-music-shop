@@ -17,7 +17,8 @@ from .views import (
     RemoveFromWishListView,
     CheckoutView,
     MakeOrderView,
-    SearchView
+    SearchView,
+    OrderView
 )
 
 urlpatterns = [
@@ -38,6 +39,7 @@ urlpatterns = [
     path('remove-from-cart/<str:ct_model>/<str:slug>/', DeleteFromCartView.as_view(), name='delete_from_cart'),
     path('change-qty/<str:ct_model>/<str:slug>/', ChangeQTYView.as_view(), name='change_qty'),
     path('clear-notifications/', ClearNotificationsViews.as_view(), name='clear-notifications'),
+    path('order/<int:id>/', OrderView.as_view(), name='order'),
     path('make-order/', MakeOrderView.as_view(), name='make-order'),
     # получение модели
     path('<str:artist_slug>/', ArtistDetailView.as_view(), name='artist_detail'),
